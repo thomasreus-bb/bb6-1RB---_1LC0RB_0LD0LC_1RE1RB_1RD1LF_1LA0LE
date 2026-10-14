@@ -171,10 +171,15 @@ The results are identical to those of `bellrun` for 10⁶ and 10⁷ Bells with s
 for the largest runs was not proven, only tested this way.
 
 ## Status (14 Oct 2026)
-- No halt up to 10⁹ Bells (`src/bellntt.c`, 23 min on 2 cores).
+- Simulated until 10^9 Bells, No HALT up to 10⁹ Bells (`src/bellntt.c`, 23 min on 2 cores).
 - Heuristic only, not a proof: if the next bit of k is treated as a fair coin, the halt rate is about 8.9·10⁻¹³ per Bell,
   expected about 1.1·10¹² Bells, P(halt by 10¹²) ≈ 59 %. Almost all of it comes from the words S = `111111` and S = `11101111`.
 - Run times beyond 10⁹ are extrapolations (accurate to roughly a factor 3): 10¹⁰ ≈ 12 h, 10¹¹ ≈ 16 days, 10¹² ≈ 1.4 years on 2 cores.
+
+## Volunteers wanted:
+- Who is willing to make a simulation until 10^11 or higher ?
+- This investigation was made together with AI Sonnet 5.5. It would be desirable to carry out an independent review using a different AI model
+
 
 ## Files
 | Path | Content |
