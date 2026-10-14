@@ -51,7 +51,7 @@ With above formulas, the sequence of bells can be computed as ... (S,K) (S',k'),
 instead of simulation on the binary tape. It is possible, to compute in advance a table, where for each S the function (S', c) = f(S, bit 1 of k) is listed.
 
 For this investigation we use a finite table (2880 words S, two entries each; an entry can also be HALT),
-computed by direct simulation of the machine with `python/bell-table.py`. The words S are sorted by length, then by value; # is the line number in `table/tab.txt` (S is stored in `table/tab_names.txt` without its leading 1). Here are the first 10 entries, a few HALT entries (`11111` and `1101111` carry almost all of the halt rate in the Markov estimate below) and the last 10 entries:
+computed by direct simulation of the machine with `python/bell-table.py`. The words S are sorted by length, then by value; # is the line number in `table/tab.txt` (S is stored in `table/tab_names.txt` without its leading 1). Here are the first 10 entries, a few HALT entries (`111111` and `11101111` carry almost all of the halt rate in the Markov estimate below) and the last 10 entries:
 
 | # | S | bit 1 of k = 0 → S', c | bit 1 of k = 1 → S', c |
 |---:|---|---|---|
@@ -82,14 +82,14 @@ computed by direct simulation of the machine with `python/bell-table.py`. The wo
 | 2878 | `1100011011011011001` | `111011011011011001`, c=8 | `1111011011011001`, c=11 |
 | 2879 | `1100011011011011011` | `111011011011011011`, c=8 | `1111011011011011`, c=11 |
 
-`unknown` means that the Bell ends in a word longer than the table limit (18 symbols after the leading 1).
+`unknown` (one entry, not in this excerpt) means that the Bell ends in a word longer than the table limit (18 symbols after the leading 1).
 
 k grows by a factor of about 3/2 per Bell, so after N Bells its bit length is about N·log₂(3/2) = 0.5849625·N plus a small constant (about 4 to 7 bits in the runs so far: B23 has k = 158,354, i.e. 18 bits; N = 10⁹ gives 584,962,508 bits). The rounded factor 0.585 is not accurate enough for large N (at N = 10⁹ it is off by about 37,000 bits). So k needs roughly N/13.7 bytes of memory (73 MB for N = 10⁹).
 
 ## Status (14 Oct 2026)
 - No halt up to 10⁹ Bells (`src/bellntt.c`, 23 min on 2 cores).
 - Heuristic only, not a proof: if the next bit of k is treated as a fair coin, the halt rate is about 8.9·10⁻¹³ per Bell,
-  expected about 1.1·10¹² Bells, P(halt by 10¹²) ≈ 59 %. Almost all of it comes from the words `11111` and `1101111`.
+  expected about 1.1·10¹² Bells, P(halt by 10¹²) ≈ 59 %. Almost all of it comes from the words S = `111111` and S = `11101111`.
 - Run times beyond 10⁹ are extrapolations (accurate to roughly a factor 3): 10¹⁰ ≈ 12 h, 10¹¹ ≈ 16 days, 10¹² ≈ 1.4 years on 2 cores.
 
 ## Files
