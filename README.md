@@ -51,7 +51,10 @@ With above formulas, the sequence of bells can be computed as ... (S,K) (S',k'),
 instead of simulation on the binary tape. It is possible, to compute in advance a table, where for each S the function (S', c) = f(S, bit 1 of k) is listed.
 
 For this investigation we use a finite table (2880 words S, two entries each; an entry can also be HALT),
-computed by direct simulation of the machine. k grows by a factor of about 3/2 per Bell, so after N Bells its bit length is about N·log₂(3/2) = 0.5849625·N plus a small constant (about 4 to 7 bits in the runs so far: B23 has k = 158,354, i.e. 18 bits; N = 10⁹ gives 584,962,508 bits). The rounded factor 0.585 is not accurate enough for large N (at N = 10⁹ it is off by about 37,000 bits). So k needs roughly N/13.7 bytes of memory (73 MB for N = 10⁹).
+computed by direct simulation of the machine (??? which programm).
+(... the first 10 entries for that table...a few HALT-entries ...the last 10 entries)
+
+k grows by a factor of about 3/2 per Bell, so after N Bells its bit length is about N·log₂(3/2) = 0.5849625·N plus a small constant (about 4 to 7 bits in the runs so far: B23 has k = 158,354, i.e. 18 bits; N = 10⁹ gives 584,962,508 bits). The rounded factor 0.585 is not accurate enough for large N (at N = 10⁹ it is off by about 37,000 bits). So k needs roughly N/13.7 bytes of memory (73 MB for N = 10⁹).
 
 ## Status (14 Oct 2026)
 - No halt up to 10⁹ Bells (`src/bellntt.c`, 23 min on 2 cores).
