@@ -34,7 +34,6 @@ computed by direct simulation of the machine. k grows by a factor 3/2 per Bell, 
 | `src/bellrun.c`, `src/bellrun.py` | reference simulation (blocks of 40 Bells) |
 | `src/bellfast.py` | Python prototype of the block method |
 | `tools/` | analysis helper scripts from earlier work, not documented |
-| `doc/` | daily reports (German) |
 
 ## Usage
 
