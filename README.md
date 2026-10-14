@@ -159,7 +159,13 @@ In `bellntt.c`:
 - the transform of 3^B is computed once and reused for all blocks;
 - q is cut into chunks of the transform length and the partial products are added where they overlap (overlap-add), so memory stays small.
 
-The block size B is a trade-off: a larger B means fewer big multiplications, but a longer low part to be simulated. B ≈ 4·10⁴ is good at 10⁷ Bells, 4·10⁵ at 10⁸, 1.2·10⁶ at 10⁹.
+The block size B (second argument of `bellntt`) does not change the result, only the speed. It is a trade-off: a larger B means fewer big multiplications, but a longer low part to be simulated.
+
+| Bells N | good block size B |
+|---|---|
+| 10⁷ | about 4·10⁴ |
+| 10⁸ | about 4·10⁵ |
+| 10⁹ | about 1.2·10⁶ |
 
 | Bells N | `bellrun` (no NTT) | `bellntt` (2 threads) |
 |---|---|---|
@@ -167,7 +173,17 @@ The block size B is a trade-off: a larger B means fewer big multiplications, but
 | 10⁸ | 1630 s | 39 s |
 | 10⁹ | ≈ 1.9 days (extrapolated) | 1383 s (669 s low part, 713 s products) |
 
-The results are identical to those of `bellrun` for 10⁶ and 10⁷ Bells with several values of B (`KCHECK`: k mod 2⁶⁴, bit length and state). That the coefficients stay below the product of the two primes
+**Checking the result.** At the end each program prints a fingerprint of the final state, `KCHECK <k mod 2^64> <bit length of k> <state>`, where `<state>` is the word S without its leading 1.
+Two programs that print the same fingerprint for the same N have computed the same orbit. Then comes `no halt in … Bells`, or, if a HALT entry of the table is reached, a message `HALT at Bell …` with the word S.
+Reference values:
+
+| Bells N | `KCHECK` |
+|---|---|
+| 10⁶ | `16887177590821663034 584970 11011` |
+| 10⁷ | `10592086495055389818 5849632 10001` |
+| 10⁹ | `825729492582408624 584962508 10001` (`bellntt` only, not cross-checked with `bellrun`) |
+
+`bellntt` gives the same fingerprint as `bellrun` for 10⁶ and 10⁷ Bells with several values of B. That the coefficients stay below the product of the two primes
 for the largest runs was not proven, only tested this way.
 
 ## Status (14 Oct 2026)
@@ -202,9 +218,7 @@ for the largest runs was not proven, only tested this way.
     cd table                                       # the programs read tab.txt and tab_names.txt from the current directory
     ../src/bellntt 10000000 40000                  # N Bells, block size B
 
-Output: `KCHECK <k mod 2^64> <bit length of k> <state>`, then `kein Halt in … Bells` (no halt) or a HALT message.
-Reference values: N = 10⁶ → `16887177590821663034 584970 11011`; N = 10⁷ → `10592086495055389818 5849632 10001`.
-Good block sizes B: about 4·10⁴ for 10⁷, 4·10⁵ for 10⁸, 1.2·10⁶ for 10⁹ Bells.
+Output: a `KCHECK` fingerprint, then "no halt" or a HALT message (details in the section "Runtime optimization: NTT").
 
 ## License
 MIT

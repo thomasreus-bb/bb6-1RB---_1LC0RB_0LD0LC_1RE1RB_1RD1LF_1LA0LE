@@ -1,7 +1,8 @@
-// bellntt.c - Bell-Bahn mit zweistufigen Bloecken und eigener NTT-Multiplikation (ohne GMP), exakt.
-// Uebersetzen: gcc -O3 -march=native -fopenmp -o bellntt bellntt.c      (ohne -fopenmp: ein Kern)
-// Aufruf:      ./bellntt N [B]      N = Zahl der Bells, B = Blockgroesse (Standard 2000000)
-// Benoetigt tab.txt und tab_names.txt im selben Ordner.
+// bellntt.c - exact Bell orbit with two-level blocks and an own NTT multiplication (no GMP).
+// Compile: gcc -O3 -march=native -fopenmp -o bellntt bellntt.c      (without -fopenmp: one core)
+// Usage:   ./bellntt N [B]      N = number of Bells, B = block size in Bells (default 2000000)
+// Needs tab.txt and tab_names.txt in the current directory.
+// Output: a KCHECK line (k mod 2^64, bit length of k, state), then "no halt ..." or a HALT message.
 //
 // Verfahren: k_neu = ((k >> (B+2)) * 3^B) << 2  +  R,  wobei R aus den unteren B+2 Bit von k
 // durch B Einzelschritte entsteht. Die Schritte selbst laufen wie in bellrun.c in Teilbloecken
@@ -69,7 +70,7 @@ static size_t mul_ntt(const u64*h,size_t hl,const u64*P,size_t plen,long long m,
   size_t hc=2*hl; size_t lp=2*plen; if((P[plen-1]>>32)==0) lp--;
   int lgstd=ceillog2(4*lp), lgneed=ceillog2(hc+lp), lgmin=ceillog2(2*lp+2);
   int lg=lgstd<lgneed?lgstd:lgneed; if(lg<lgmin) lg=lgmin; if(lg<4) lg=4;
-  if(lg>tables_lg){ if(lg>24){ fprintf(stderr,"Transformlaenge zu gross\n"); exit(1);} build_tables(lg); }
+  if(lg>tables_lg){ if(lg>24){ fprintf(stderr,"transform length too large\n"); exit(1);} build_tables(lg); }
   size_t T=(size_t)1<<lg, c=T-lp+1;
   if(T>tmpcap){ for(int i=0;i<2;i++){ free(tmp[i]); tmp[i]=malloc(T*8);} free(bufc); free(tailc); bufc=malloc(T*16); tailc=malloc(T*16); tmpcap=T; }
   if(fp_lg!=lg||fp_m!=m||fp_lp!=lp){
@@ -145,7 +146,7 @@ int main(int argc,char**argv){
     if(len>off){ hl=len-off; for(size_t i=0;i<hl;i++){ u64 v=k[off+i]>>sh; if(sh&&off+i+1<len) v|=k[off+i+1]<<(64-sh); hi[i]=v; } while(hl>0&&hi[hl-1]==0) hl--; }
     int st=s; long long rem=m;
     while(rem>0){ int mmx=rem<M?(int)rem:M; long long c=0; int stp=0; blk(L,&Ll,&st,mmx,&c,&stp); done+=c; rem-=c;
-      if(stp){ printf("%s bei Bell %lld S_pascal=%s k mod 4=%d\n",stp==-1?"HALT":"UNBEKANNTER ZUSTAND",done,names[st],(int)(L[0]&3)); return 0; } }
+      if(stp){ printf("%s at Bell %lld S_pascal=%s k mod 4=%d\n",stp==-1?"HALT":"UNKNOWN STATE",done,names[st],(int)(L[0]&3)); return 0; } }
     double tb=now(); tlow+=tb-ta;
     if(hl==0){ memcpy(k,L,Ll*8); len=Ll; }
     else {
@@ -156,11 +157,11 @@ int main(int argc,char**argv){
       len=i; while(len>1&&k[len-1]==0) len--;
     }
     tmul+=now()-tb; s=st;
-    if(done>=nextp){ printf("Bell %lld  k=%zu Limbs  Zustand %s  Zeit %.0fs (unten %.0f, Produkt %.0f)\n",done,len,names[s],now()-t0,tlow,tmul); fflush(stdout); nextp+=100000000LL; }
+    if(done>=nextp){ printf("Bell %lld  k=%zu limbs  state %s  time %.0fs (low part %.0f, products %.0f)\n",done,len,names[s],now()-t0,tlow,tmul); fflush(stdout); nextp+=100000000LL; }
   }
   int bits=(int)(64*(len-1)+64-__builtin_clzll(k[len-1]));
   printf("KCHECK %llu %d %s\n",(unsigned long long)k[0],bits,names[s]);
-  printf("kein Halt in %lld Bells; Zeit %.1fs (unterer Teil %.1fs, Produkt %.1fs); B=%lld; k hat %d Bit; Zustand %s\n",done,now()-t0,tlow,tmul,B,bits,names[s]);
+  printf("no halt in %lld Bells; time %.1fs (low part %.1fs, products %.1fs); B=%lld; k has %d bits; state %s\n",done,now()-t0,tlow,tmul,B,bits,names[s]);
   long long tot=0; for(int i=0;i<n;i++) tot+=vis[i];
   for(int r=0;r<6;r++){ int b=0; for(int i=1;i<n;i++) if(vis[i]>vis[b]) b=i; printf(" %s %.4f",names[b],(double)vis[b]/tot); vis[b]=-1; } printf("\n");
   return 0; }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Echte Bell-Bahn mit Block-Spruengen (exakt). Aufruf: python3 bellrun.py N [checkpoint.pkl]
-Benoetigt tab.txt und tab_names.txt (Uebergangstabelle: Zustand S, k mod 4 -> S', c, Halt)."""
+"""Exact Bell orbit with jumps of 40 Bells. Usage: python3 bellrun.py N [checkpoint.pkl]
+Needs tab.txt and tab_names.txt in the current directory (transition table: word S, bit 1 of k -> S', c, halt)."""
 import sys,time,pickle,os
 M=40; W=62; MASK=(1<<W)-1; P3=3**M
 tab=open('tab.txt').read().split('\n'); n=int(tab[0])
@@ -23,15 +23,15 @@ while done<N:
         L=3*(L>>1)+cc[idx]; st=t; cnt+=1
     if stop is not None:
         done+=cnt
-        print('HALT' if stop==-1 else 'UNBEKANNTER ZUSTAND', 'bei Bell',done,'S_pascal=',names[st],'k mod 4 =',L&3); sys.exit(0)
+        print('HALT' if stop==-1 else 'UNKNOWN STATE', 'at Bell',done,'S_pascal=',names[st],'k mod 4 =',L&3); sys.exit(0)
     if cnt==M: k=(((k>>W)*P3)<<(W-M))+L
     else: k=(((k>>W)*3**cnt)<<(W-cnt))+L
     s=st; done+=cnt
     if ck and time.time()-last>300:
         pickle.dump((k,s,done,visits),open(ck,'wb')); last=time.time()
     if done in (22,) : print('Bell',done,'k=',k,'S=',names[s])
-print('kein Halt in',done,'Bells; Zeit',round(time.time()-t0,1),'s; k hat',k.bit_length(),'Bit; Zustand',names[s])
+print('no halt in',done,'Bells; time',round(time.time()-t0,1),'s; k has',k.bit_length(),'bits; state',names[s])
 tot=sum(visits)
 top=sorted(range(n),key=lambda i:-visits[i])[:8]
-print('Haeufigkeiten:',[(names[i],round(visits[i]/tot,4)) for i in top])
+print('frequencies:',[(names[i],round(visits[i]/tot,4)) for i in top])
 if ck: pickle.dump((k,s,done,visits),open(ck,'wb'))

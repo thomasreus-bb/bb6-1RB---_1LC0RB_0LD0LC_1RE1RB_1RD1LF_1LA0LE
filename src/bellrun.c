@@ -1,5 +1,5 @@
-// Bell-Bahn mit Block-Spruengen, exakt. Uebersetzen: gcc -O3 -march=native -o bellrun bellrun.c
-// Aufruf: ./bellrun N [checkpoint.bin]     (tab.txt, tab_names.txt im selben Ordner)
+// Exact Bell orbit with jumps of 40 Bells per pass over k.  Compile: gcc -O3 -march=native -o bellrun bellrun.c
+// Usage: ./bellrun N [checkpoint.bin]     (needs tab.txt and tab_names.txt in the current directory)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,7 +18,7 @@ int main(int argc,char**argv){
   names=malloc(sizeof(char*)*n); f=fopen("tab_names.txt","r"); for(int i=0;i<n;i++){names[i]=malloc(64);fscanf(f,"%63s",names[i]);} fclose(f);
   vis=calloc(n,8); cap=(size_t)(0.585*N/64)+1024; k=calloc(cap,8);
   len=1;k[0]=92;s=0;done=0;
-  if(ck&&(f=fopen(ck,"rb"))){fread(&len,8,1,f);fread(&s,4,1,f);fread(&done,8,1,f);fread(vis,8,n,f);fread(k,8,len,f);fclose(f);printf("fortgesetzt bei Bell %lld\n",done);}
+  if(ck&&(f=fopen(ck,"rb"))){fread(&len,8,1,f);fread(&s,4,1,f);fread(&done,8,1,f);fread(vis,8,n,f);fread(k,8,len,f);fclose(f);printf("resumed at Bell %lld\n",done);}
   u64 P3=1;for(int i=0;i<M;i++)P3*=3;
   time_t t0=time(0),last=t0;
   while(done<N){
@@ -29,7 +29,7 @@ int main(int argc,char**argv){
       if(t<0){stop=t;break;}
       L=3*(L>>1)+cc[idx]; st=t; cnt++;
     }
-    if(stop){done+=cnt;printf("%s bei Bell %lld S_pascal=%s k mod 4=%d\n",stop==-1?"HALT":"UNBEKANNTER ZUSTAND",done,names[st],(int)(L&3));
+    if(stop){done+=cnt;printf("%s at Bell %lld S_pascal=%s k mod 4=%d\n",stop==-1?"HALT":"UNKNOWN STATE",done,names[st],(int)(L&3));
       save("halt_state.bin");return 0;}
     u64 mul=P3; int sh=64-M;
     if(cnt<M){mul=1;for(int i=0;i<cnt;i++)mul*=3;sh=64-cnt;}
@@ -53,11 +53,11 @@ int main(int argc,char**argv){
     len=nl; while(len>1&&k[len-1]==0)len--;
     s=st; done+=cnt;
     if(ck&&time(0)-last>300){save(ck);last=time(0);}
-    { static long long nextp=100000000LL; if(done>=nextp){ printf("Bell %lld  k=%zu Limbs  Zustand %s  Zeit %lds\n",done,len,names[s],(long)(time(0)-t0)); fflush(stdout); nextp+=100000000LL; } }
+    { static long long nextp=100000000LL; if(done>=nextp){ printf("Bell %lld  k=%zu limbs  state %s  time %lds\n",done,len,names[s],(long)(time(0)-t0)); fflush(stdout); nextp+=100000000LL; } }
   }
   int bits=(int)(64*(len-1)+64-__builtin_clzll(k[len-1]));
   printf("KCHECK %llu %d %s\n",(unsigned long long)k[0],bits,names[s]);
-  printf("kein Halt in %lld Bells; Zeit %lds; k hat %d Bit; Zustand %s\n",done,(long)(time(0)-t0),bits,names[s]);
+  printf("no halt in %lld Bells; time %lds; k has %d bits; state %s\n",done,(long)(time(0)-t0),bits,names[s]);
   long long tot=0;for(int i=0;i<n;i++)tot+=vis[i];
   for(int r=0;r<6;r++){int b=0;for(int i=1;i<n;i++)if(vis[i]>vis[b])b=i;printf(" %s %.4f",names[b],(double)vis[b]/tot);vis[b]=-1;} printf("\n");
   if(ck)save(ck); return 0;}
