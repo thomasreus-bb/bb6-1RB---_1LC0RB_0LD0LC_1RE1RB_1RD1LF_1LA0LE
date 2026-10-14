@@ -1,21 +1,30 @@
 # bb6: does this 6-state Turing machine halt on the empty tape?
 
-    1RB---_1LC0RB_0LD0LC_1RE1RB_1RD1LF_1LA0LE        (seed-DB notation; it halts when state A reads a 1)
+    1RB---_1LC0RB_0LD0LC_1RE1RB_1RD1LF_1LA0LE 
 
 Open question: does the machine ever halt? This repository holds the programs and data of an ongoing investigation.
 
 ## Idea in brief
-After 8 initial steps the tape always looks like
-
+The TM is of type Bell, after 8 initial steps.
+The bells can be separated and identified by a certain tape-configuration
     0^∞  1^k  F>  S  0^∞        with S = 1(0|1)*1
 
-(a block of k ones, the head in state F on the first symbol of S). Such a configuration is called a *Bell*.
+(a block of k ones, the head in state F on the first symbol of S).
 The next Bell is reached by
 
     k' = 3·⌊k/2⌋ + c ,        (S', c) = f(S, bit 1 of k)
 
-where c is a small constant. f is a finite table (2880 words S, two entries each; an entry can also be HALT),
-computed by direct simulation of the machine. k grows by a factor 3/2 per Bell, so after N Bells it has about 0.585·N bits.
+where c is a small constant. 
+
+(... fill in a listing of the first 23 bells.)
+
+
+Macro-Simulation: 
+With above formulas, the sequence of bells can be computed as ... (S,K) (S',k'),(S'',k'')...,
+instead of simulation on the binary tape. It is possible, to compute in advance a table, where for each S the function (S', c) = f(S, bit 1 of k) is listed.
+
+For this investigation we use a finite table (2880 words S, two entries each; an entry can also be HALT),
+computed by direct simulation of the machine. k grows by a factor 3/2 per Bell, so after N Bells it has about (0.585·N bits ... make correction).
 
 ## Status (14 Oct 2026)
 - No halt up to 10⁹ Bells (`src/bellntt.c`, 23 min on 2 cores).
