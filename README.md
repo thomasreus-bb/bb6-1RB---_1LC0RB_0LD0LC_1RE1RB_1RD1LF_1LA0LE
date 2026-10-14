@@ -100,6 +100,75 @@ So k needs roughly N/13.7 bytes:
 Not included: the working buffers of the multiplication in `bellntt` (observed in the run to 10⁹: about 220 MB resident in total at 8·10⁸ Bells, with k then at 58 MB)
 and the table (small).
 
+## HALT expected! (Markov estimate)
+This is a heuristic, not a proof.
+
+**Reasoning.** The next word S' and the question whether the machine halts depend only on S and on bit 1 of k (checked for every entry of the table with
+several values of k, see `bell-table.py --verify`). Assume that bit 1 of k behaves like a fair coin toss in every Bell. Then the sequence of words S is a Markov chain on
+the 2880 words of the table: each word has two successors with probability 1/2 each, and an entry HALT ends the chain.
+
+- The visit frequencies of the chain (its stationary distribution) agree with the real orbit: over the first 300,000 Bells the total variation distance is 0.003;
+  in the run to 10⁹ Bells the three most frequent words S = `11`, `111`, `110001` occurred with frequencies 0.3457, 0.2977, 0.1538, the same as in the model to the digits shown.
+- The halt probability per Bell is the sum over all words of (visit frequency × fraction of HALT successors) = **8.87·10⁻¹³**.
+  Almost all of it (61 % and 39 %) comes from the two words S = `111111` and S = `11101111`, each with one HALT successor.
+- With a constant rate, P(halt within N Bells) = 1 − exp(−8.87·10⁻¹³ · N). Expected number of Bells until the halt: 1.13·10¹², median 7.8·10¹¹.
+
+| Bells N | P(halt up to N) | simulation time with `bellntt` (2 cores, extrapolated) |
+|---|---|---|
+| 10⁹ | 0.089 % | 23 min (measured, no halt) |
+| 10¹⁰ | 0.88 % | ≈ 12 h |
+| 10¹¹ | 8.5 % | ≈ 16 days |
+| 10¹² | 58.8 % | ≈ 1.4 years |
+| 2·10¹² | 83 % | ≈ 4 years |
+| 5·10¹² | 98.8 % | ≈ 16 years |
+| 10¹³ | 99.99 % | ≈ 44 years |
+
+The model has no memory: if there is still no halt after 10¹² Bells, the chance of a halt within the next 10¹² Bells is again 59 %.
+The times for N > 10⁹ assume that the run time grows like N^1.5 and are accurate to a factor of about 3 only.
+
+**Limits.** The fair-coin assumption is not proven: the bits of k come from the 3/2 dynamics, so correlations are possible, and they could change all the numbers above
+(even whether a halt ever happens). Also note that the model says only that the HALT entries are rare, not where in the orbit they will be hit.
+The model agrees with the 10⁹ Bells simulated so far, but at probability 0.089 % that run could not have shown a halt anyway.
+
+## Runtime optimization: NTT
+**Why.** For one Bell, k' = 3·⌊k/2⌋ + c has to be applied to a number with up to hundreds of millions of bits. A simple implementation (`src/bellrun.c`) groups 40 Bells per pass over k,
+so every pass costs time proportional to the length of k and the total time grows like N². That is 12 s for 10⁷ Bells, 27 min for 10⁸ and about 2 days for 10⁹.
+
+**Block idea.** For a block of B Bells only the lowest B+2 bits of k decide which words S occur and which constants c are added.
+Write k = q·2^(B+2) + r. Then, after B Bells, the new k is
+
+    k_B = 3^B · q · 4 + L        (L is computed from the low part r alone, the table and the 40-Bell passes)
+
+So the long part q of k is not touched Bell by Bell, but multiplied once by 3^B. That is a multiplication of a number with up to N·0.585 bits by one with 1.585·B bits.
+With the schoolbook method this costs as much as before; with a fast multiplication it costs only about n·log n.
+
+**NTT (number theoretic transform).** Write a number as a polynomial in 2^w whose coefficients are its w-bit pieces. The product of two numbers is then the product of two
+polynomials (carries are added afterwards). A polynomial is determined by its values at enough points, and the product of two polynomials has values equal to the products of the values.
+The NTT is the fast Fourier transform done with whole numbers modulo a prime p instead of with floating-point numbers, so there are no rounding errors:
+
+1. Choose a prime p with 2^24 | p − 1, so that a root of unity of order 2^m (m ≤ 24) exists modulo p.
+2. Transform both numbers (log n butterfly stages, about n·log n operations).
+3. Multiply the transformed values point by point.
+4. Transform back and add up the carries.
+
+In `bellntt.c`:
+- two 63-bit primes (p = 9223372036636672001 and 9223372036737335297) and the Chinese remainder theorem (CRT), so that the true coefficients, which are larger than one prime, are recovered (the two primes are handled by two OpenMP threads);
+- Montgomery multiplication instead of divisions by p;
+- the forward transform leaves its output in bit-reversed order and the inverse transform expects exactly that order, so no bit reversal is needed;
+- the transform of 3^B is computed once and reused for all blocks;
+- q is cut into chunks of the transform length and the partial products are added where they overlap (overlap-add), so memory stays small.
+
+The block size B is a trade-off: a larger B means fewer big multiplications, but a longer low part to be simulated. B ≈ 4·10⁴ is good at 10⁷ Bells, 4·10⁵ at 10⁸, 1.2·10⁶ at 10⁹.
+
+| Bells N | `bellrun` (no NTT) | `bellntt` (2 threads) |
+|---|---|---|
+| 10⁷ | 12 s | 1.7 s |
+| 10⁸ | 1630 s | 39 s |
+| 10⁹ | ≈ 1.9 days (extrapolated) | 1383 s (669 s low part, 713 s products) |
+
+The results are identical to those of `bellrun` for 10⁶ and 10⁷ Bells with several values of B (`KCHECK`: k mod 2⁶⁴, bit length and state). That the coefficients stay below the product of the two primes
+for the largest runs was not proven, only tested this way.
+
 ## Status (14 Oct 2026)
 - No halt up to 10⁹ Bells (`src/bellntt.c`, 23 min on 2 cores).
 - Heuristic only, not a proof: if the next bit of k is treated as a fair coin, the halt rate is about 8.9·10⁻¹³ per Bell,
