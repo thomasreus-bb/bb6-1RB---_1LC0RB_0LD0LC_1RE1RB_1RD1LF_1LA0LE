@@ -115,6 +115,7 @@ The times for N > 10⁹ assume that the run time grows like N^1.5 and are accura
 The model agrees with the 10⁹ Bells simulated so far, but at probability 0.089 % that run could not have shown a halt anyway.
 
 ## Memory demand
+In order to simulate until HALT, we expect that we need to go until 10^12 Bells or higher, which requires some memory for storage of k:
 k grows by a factor of about 3/2 per Bell. After N Bells its bit length is about N·log₂(3/2) = 0.5849625·N plus a small constant
 (about 4 to 7 bits in the runs so far: B23 has k = 158,354, i.e. 18 bits; N = 10⁹ gives 584,962,508 bits).
 The rounded factor 0.585 is not accurate enough for large N (at N = 10⁹ it is off by about 37,000 bits).
