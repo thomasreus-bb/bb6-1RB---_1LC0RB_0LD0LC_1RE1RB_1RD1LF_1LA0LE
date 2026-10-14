@@ -1,0 +1,2 @@
+# bb6-1RB---_1LC0RB_0LD0LC_1RE1RB_1RD1LF_1LA0LE
+for TM deciding 
