@@ -84,7 +84,7 @@ computed by direct simulation of the machine with `python/bell-table.py`. The wo
 
 `unknown` (one entry, not in this excerpt) means that the Bell ends in a word longer than the table limit (18 symbols after the leading 1).
 
-Memory demand
+
 k grows by a factor of about 3/2 per Bell, so after N Bells its bit length is about N·log₂(3/2) = 0.5849625·N plus a small constant (about 4 to 7 bits in the runs so far: B23 has k = 158,354, i.e. 18 bits; N = 10⁹ gives 584,962,508 bits). The rounded factor 0.585 is not accurate enough for large N (at N = 10⁹ it is off by about 37,000 bits). So k needs roughly N/13.7 bytes of memory (73 MB for N = 10⁹).
 
 ## Status (14 Oct 2026)
