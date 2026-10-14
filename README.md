@@ -16,7 +16,34 @@ The next Bell is reached by
 
 where c is a small constant. 
 
-(... fill in a listing of the first 23 bells.)
+The first 23 Bells (`python/bell-structure.py 23`). `steps` = number of TM steps up to the start of the Bell, `k` and `S` as above (S written out in full), `c` = the constant of the transition to the next Bell, i.e. k<sub>n+1</sub> = 3·⌊k<sub>n</sub>/2⌋ + c<sub>n</sub>:
+
+| n | steps (TM) | k | k mod 4 | S | c |
+|---:|---:|---:|---:|---|---:|
+| 1 | 8 | 2 | 2 | `11` | 11 |
+| 2 | 105 | 14 | 2 | `11` | 11 |
+| 3 | 430 | 32 | 0 | `11` | 8 |
+| 4 | 1,237 | 56 | 0 | `111` | 8 |
+| 5 | 2,930 | 92 | 0 | `11` | 8 |
+| 6 | 7,217 | 146 | 2 | `111` | 5 |
+| 7 | 16,716 | 224 | 0 | `110001` | 8 |
+| 8 | 38,163 | 344 | 0 | `11101` | 8 |
+| 9 | 85,508 | 524 | 0 | `111` | 8 |
+| 10 | 192,969 | 794 | 2 | `11` | 11 |
+| 11 | 439,774 | 1,202 | 2 | `11` | 11 |
+| 12 | 997,271 | 1,814 | 2 | `11` | 11 |
+| 13 | 2,254,896 | 2,732 | 0 | `11` | 8 |
+| 14 | 5,085,303 | 4,106 | 2 | `111` | 5 |
+| 15 | 11,448,622 | 6,164 | 0 | `110001` | 8 |
+| 16 | 25,767,649 | 9,254 | 2 | `11101` | 5 |
+| 17 | 57,973,932 | 13,886 | 2 | `1100011` | 11 |
+| 18 | 130,462,393 | 20,840 | 0 | `1111` | 8 |
+| 19 | 293,566,714 | 31,268 | 0 | `11001` | 8 |
+| 20 | 660,559,285 | 46,910 | 2 | `1111` | 8 |
+| 21 | 1,486,093,231 | 70,373 | 1 | `11` | 8 |
+| 22 | 3,343,984,454 | 105,566 | 2 | `111` | 5 |
+| 23 | 7,524,107,793 | 158,354 | 2 | `110001` | 11 |
+
 
 
 Macro-Simulation: 
@@ -24,7 +51,7 @@ With above formulas, the sequence of bells can be computed as ... (S,K) (S',k'),
 instead of simulation on the binary tape. It is possible, to compute in advance a table, where for each S the function (S', c) = f(S, bit 1 of k) is listed.
 
 For this investigation we use a finite table (2880 words S, two entries each; an entry can also be HALT),
-computed by direct simulation of the machine. k grows by a factor 3/2 per Bell, so after N Bells it has about (0.585·N bits ... make correction).
+computed by direct simulation of the machine. k grows by a factor of about 3/2 per Bell, so after N Bells its bit length is about N·log₂(3/2) = 0.5849625·N plus a small constant (about 4 to 7 bits in the runs so far: B23 has k = 158,354, i.e. 18 bits; N = 10⁹ gives 584,962,508 bits). The rounded factor 0.585 is not accurate enough for large N (at N = 10⁹ it is off by about 37,000 bits). So k needs roughly N/13.7 bytes of memory (73 MB for N = 10⁹).
 
 ## Status (14 Oct 2026)
 - No halt up to 10⁹ Bells (`src/bellntt.c`, 23 min on 2 cores).
