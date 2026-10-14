@@ -84,8 +84,21 @@ computed by direct simulation of the machine with `python/bell-table.py`. The wo
 
 `unknown` (one entry, not in this excerpt) means that the Bell ends in a word longer than the table limit (18 symbols after the leading 1).
 
+## Memory demand
+k grows by a factor of about 3/2 per Bell. After N Bells its bit length is about N·log₂(3/2) = 0.5849625·N plus a small constant
+(about 4 to 7 bits in the runs so far: B23 has k = 158,354, i.e. 18 bits; N = 10⁹ gives 584,962,508 bits).
+The rounded factor 0.585 is not accurate enough for large N (at N = 10⁹ it is off by about 37,000 bits).
+So k needs roughly N/13.7 bytes:
 
-k grows by a factor of about 3/2 per Bell, so after N Bells its bit length is about N·log₂(3/2) = 0.5849625·N plus a small constant (about 4 to 7 bits in the runs so far: B23 has k = 158,354, i.e. 18 bits; N = 10⁹ gives 584,962,508 bits). The rounded factor 0.585 is not accurate enough for large N (at N = 10⁹ it is off by about 37,000 bits). So k needs roughly N/13.7 bytes of memory (73 MB for N = 10⁹).
+| Bells N | k | memory for k |
+|---|---|---|
+| 10⁹ | 585 million bits | 73 MB |
+| 10¹⁰ | 5.85 billion bits | 0.73 GB |
+| 10¹¹ | 58.5 billion bits | 7.3 GB |
+| 10¹² | 585 billion bits | 73 GB |
+
+Not included: the working buffers of the multiplication in `bellntt` (observed in the run to 10⁹: about 220 MB resident in total at 8·10⁸ Bells, with k then at 58 MB)
+and the table (small).
 
 ## Status (14 Oct 2026)
 - No halt up to 10⁹ Bells (`src/bellntt.c`, 23 min on 2 cores).
