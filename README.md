@@ -1,20 +1,20 @@
 # bb6: does this 6-state Turing machine halt on the empty tape?
 
-    1RB---_1LC0RB_0LD0LC_1RE1RB_1RD1LF_1LA0LE 
+    1RB---_1LC0RB_0LD0LC_1RE1RB_1RD1LF_1LA0LE
 
 Open question: does the machine ever halt? This repository holds the programs and data of an ongoing investigation.
 
 ## Idea in brief
-The TM is of type Bell, after 8 initial steps.
-The bells can be separated and identified by a certain tape-configuration
+After 8 initial steps the machine behaves like a "Bell" machine.
+The Bells can be separated and identified by a certain tape configuration
     0^∞  1^k  F>  S  0^∞        with S = 1(0|1)*1
 
-(a block of k ones, the head in state F on the first symbol of S).
+(a block of k ones, the head in state F on the first symbol of S; bit 0 is the lowest bit of k).
 The next Bell is reached by
 
     k' = 3·⌊k/2⌋ + c ,        (S', c) = f(S, bit 1 of k)
 
-where c is a small constant. 
+where c is a small constant.
 
 The number of TM steps spent in one Bell is a quadratic polynomial in k. If t is the step count at the start of a Bell, then the next Bell starts at
 
@@ -61,12 +61,11 @@ The first 23 Bells (`python/bell-structure.py 23`). `t` = number of TM steps up 
 
 
 
-Macro-Simulation: 
-By iteration of above formulas, the sequence of bells can be computed as ... (S,k) (S',k'),(S'',k'')...,
-instead of simulation on the binary tape. It is possible, to compute in advance a table, where for each S the function (S', c) = f(S, bit 1 of k) is listed.
+**Macro simulation.** By iterating the formulas above, the sequence of Bells can be computed as (S, k), (S', k'), (S'', k''), …
+instead of simulating the machine on the tape. For this, a table is computed in advance in which the function (S', c) = f(S, bit 1 of k) is listed for each S.
 
 For this investigation we use a finite table (2880 words S, two entries each; an entry can also be HALT),
-computed by direct simulation of the machine with `python/bell-table.py`. The words S are sorted by length, then by value; # is the line number in `table/tab.txt` (S is stored in `table/tab_names.txt` without its leading 1). Here are the first 10 entries, a few HALT entries (`111111` and `11101111` carry almost all of the halt rate in the Markov estimate below) and the last 10 entries:
+computed by direct simulation of the machine with `python/bell-table.py`. The words S are sorted by length, then by value; # is the index (counting from 0, i.e. line number − 1) in `table/tab.txt` (S is stored in `table/tab_names.txt` without its leading 1). Here are the first 10 entries, a few HALT entries (`111111` and `11101111` carry almost all of the halt rate in the Markov estimate below) and the last 10 entries:
 
 | # | S | bit 1 of k = 0 → S', c | bit 1 of k = 1 → S', c |
 |---:|---|---|---|
@@ -130,49 +129,49 @@ The times for N > 10⁹ assume that the run time grows like N^1.5 and are accura
 The model agrees with the 10⁹ Bells simulated so far, but at probability 0.089 % that run could not have shown a halt anyway.
 
 ## Memory demand
-In order to simulate until HALT, we expect that we need to go until 10^12 Bells or higher, which requires some memory for storage of k:
+To simulate until HALT we expect to need 10¹² Bells or more, which requires a lot of memory to store k:
 k grows by a factor of about 3/2 per Bell. After N Bells its bit length is about N·log₂(3/2) = 0.5849625·N plus a small constant
-(about 4 to 7 bits in the runs so far: B23 has k = 158,354, i.e. 18 bits; N = 10⁹ gives 584,962,508 bits).
+(about 4 to 7 bits in the runs so far: Bell 23 has k = 158,354, i.e. 18 bits; N = 10⁹ gives 584,962,508 bits).
 The rounded factor 0.585 is not accurate enough for large N (at N = 10⁹ it is off by about 37,000 bits).
 So k needs roughly N/13.7 bytes.
 
 **Lower bound for the number of TM steps.** The table below also gives a lower bound for the TM steps t. It follows from two facts:
-1. A Bell with k ones takes at least 3/8·k² steps (d > 0 in the formula above).
-2. Every constant c in the table is at least 5, so k' = 3·⌊k/2⌋ + c ≥ 1.5·k, and therefore k_n ≥ 1.5^(n−23) · k₂₃ for n ≥ 23, with k₂₃ = 158,354.
+1. A Bell with k ones takes at least 3/8·k² steps (because d > 0 in the formula above).
+2. Every constant c in the table is at least 5, so k' = 3·⌊k/2⌋ + c ≥ 1.5·k, and therefore k<sub>n</sub> ≥ 1.5<sup>n−23</sup> · k<sub>23</sub> for n ≥ 23, with k<sub>23</sub> = 158,354. Here t<sub>n</sub> and k<sub>n</sub> are t and k at the start of Bell n, as in the table above.
 
-Hence t_N ≥ t₂₃ + 3/8 · Σ_{n=23}^{N−1} k_n² ≥ 3/8 · k₂₃² · Σ 2.25^j ≥ 0.3 · k₂₃² · (2.25^(N−23) − 1) + t₂₃ ≈ 7.5·10⁹ · 2.25^(N−23) = 10^(0.35218·N + 1.78),
+Hence t<sub>N</sub> ≥ t<sub>23</sub> + 3/8 · Σ k<sub>n</sub>² (sum over n = 23, …, N−1) ≥ 3/8 · k<sub>23</sub>² · Σ 2.25<sup>j</sup> ≥ 0.3 · k<sub>23</sub>² · (2.25<sup>N−23</sup> − 1) + t<sub>23</sub> ≈ 7.5·10⁹ · 2.25<sup>N−23</sup> = 10<sup>0.35218·N + 1.78</sup>,
 because 2.25 = 1.5² and log₁₀ 2.25 = 0.35218. The step count itself therefore has more than 0.35·N decimal digits, and for all N in the table it is far beyond what a step-by-step simulation can reach.
-The bound rests on the step formula, which is verified for k = 80 to 92 and for all 23 listed Bells, not proved for every k. In practice t_N ≈ 0.3·k_N², which has the same exponent.
+The bound rests on the step formula, which was verified for k = 80 to 92 and for all 23 listed Bells but not proved for every k. In practice t<sub>N</sub> ≈ 0.3·k<sub>N</sub>², which has the same exponent.
 
 
 | Bells N | k | memory for k | TM steps t, lower bound |
 |---|---|---|---|
-| 10⁹ | 585 million bits | 73 MB | 10^(3.52·10⁸) |
-| 10¹⁰ | 5.85 billion bits | 0.73 GB | 10^(3.52·10⁹) |
-| 10¹¹ | 58.5 billion bits | 7.3 GB | 10^(3.52·10¹⁰) |
-| 10¹² | 585 billion bits | 73 GB | 10^(3.52·10¹¹) |
+| 10⁹ | 585 million bits | 73 MB | 10<sup>3.52·10⁸</sup> |
+| 10¹⁰ | 5.85 billion bits | 0.73 GB | 10<sup>3.52·10⁹</sup> |
+| 10¹¹ | 58.5 billion bits | 7.3 GB | 10<sup>3.52·10¹⁰</sup> |
+| 10¹² | 585 billion bits | 73 GB | 10<sup>3.52·10¹¹</sup> |
 
 Not included: the working buffers of the multiplication in `bellntt` (observed in the run to 10⁹: about 220 MB resident in total at 8·10⁸ Bells, with k then at 58 MB)
 and the table (small).
 
 ## Runtime optimization: Block simulation and NTT
-**Why.** For one Bell, k' = 3·⌊k/2⌋ + c has to be applied to a number with up to hundreds of millions of bits. A simple implementation (`src/bellrun.c`) groups 40 Bells per pass over k,
+**Why.** For one Bell, k' = 3·⌊k/2⌋ + c has to be applied to a number with up to hundreds of millions of bits. A simple implementation (`src/bellrun.c`) processes 40 Bells per pass over k,
 so every pass costs time proportional to the length of k and the total time grows like N². That is 12 s for 10⁷ Bells, 27 min for 10⁸ and about 2 days for 10⁹.
 
-**Block simulation (two levels).** Bell by Bell, only the lowest bits of k matter for the path: k' = 3·⌊k/2⌋ + c shifts k right by one bit, and the word S and the constant c depend on the lowest two bits.
-So for a block of B Bells only the lowest B+2 bits of k decide which words S occur and which constants c are added. Write k = q·2^(B+2) + r. Then, after B Bells, the new k is
+**Block simulation (two levels).** Bell by Bell, the next word S' and the constant c depend only on S and on bit 1 of k, and k' = 3·⌊k/2⌋ + c shifts k right by one bit, so each Bell uses up one bit from the bottom of k.
+Therefore, for a block of B Bells only the lowest B+2 bits of k decide which words S occur and which constants c are added. Write k = q·2<sup>B+2</sup> + r. Then, after B Bells, the new k is
 
     k_B = 3^B · q · 4 + L        (L is computed from the low part r alone, with the table)
 
 - **Inner level (low part).** L is obtained by simulating the B Bells on the short number r only, in passes of 40 Bells at a time (`bellrun.c` does the same 40-Bell passes on the whole k, which is why it needs time ∝ N²).
-- **Outer level (long part).** The long part q of k is not touched Bell by Bell, but multiplied once by 3^B. That is a multiplication of a number with up to N·0.585 bits by one with 1.585·B bits.
-With the schoolbook method this costs as much as before; with a fast multiplication it costs only about n·log n. This is where the NTT comes in.
+- **Outer level (long part).** The long part q of k is not touched Bell by Bell, but multiplied once by 3^B. That is a multiplication of a number with up to 0.585·N bits by one with 1.585·B bits.
+  With the schoolbook method this costs as much as before; with a fast multiplication it costs only about n·log n. This is where the NTT comes in.
 
-**NTT (number theoretic transform).** Write a number as a polynomial in 2^w whose coefficients are its w-bit pieces. The product of two numbers is then the product of two
+**NTT (number theoretic transform).** Write a number as a polynomial in 2<sup>w</sup> whose coefficients are its w-bit pieces. The product of two numbers is then the product of two
 polynomials (carries are added afterwards). A polynomial is determined by its values at enough points, and the product of two polynomials has values equal to the products of the values.
 The NTT is the fast Fourier transform done with whole numbers modulo a prime p instead of with floating-point numbers, so there are no rounding errors:
 
-1. Choose a prime p with 2^24 | p − 1, so that a root of unity of order 2^m (m ≤ 24) exists modulo p.
+1. Choose a prime p with 2²⁴ | p − 1, so that a root of unity of order 2<sup>m</sup> (m ≤ 24) exists modulo p.
 2. Transform both numbers (log n butterfly stages, about n·log n operations).
 3. Multiply the transformed values point by point.
 4. Transform back and add up the carries.
@@ -198,7 +197,7 @@ The block size B (second argument of `bellntt`) does not change the result, only
 | 10⁸ | 1630 s | 39 s |
 | 10⁹ | ≈ 1.9 days (extrapolated) | 1383 s (669 s low part, 713 s products) |
 
-**Checking the result.** At the end each program prints a fingerprint of the final state, `KCHECK <k mod 2^64> <bit length of k> <state>`, where `<state>` is the word S without its leading 1.
+**Checking the result.** At the end each program prints a fingerprint of the final state, `KCHECK <k mod 2⁶⁴> <bit length of k> <state>`, where `<state>` is the word S without its leading 1.
 Two programs that print the same fingerprint for the same N have computed the same orbit. Then comes `no halt in … Bells`, or, if a HALT entry of the table is reached, a message `HALT at Bell …` with the word S.
 Reference values:
 
@@ -211,15 +210,15 @@ Reference values:
 `bellntt` gives the same fingerprint as `bellrun` for 10⁶ and 10⁷ Bells with several values of B. That the coefficients stay below the product of the two primes
 for the largest runs was not proven, only tested this way.
 
-## Status (14 Oct 2026)
-- Simulated until 10^9 Bells, No HALT up to 10⁹ Bells (`src/bellntt.c`, 23 min on 2 cores).
+## Status (15 Oct 2026)
+- Simulated up to 10⁹ Bells with no HALT (`src/bellntt.c`, 23 min on 2 cores).
 - Heuristic only, not a proof: if the next bit of k is treated as a fair coin, the halt rate is about 8.9·10⁻¹³ per Bell,
   expected about 1.1·10¹² Bells, P(halt by 10¹²) ≈ 59 %. Almost all of it comes from the words S = `111111` and S = `11101111`.
 - Run times beyond 10⁹ are extrapolations (accurate to roughly a factor 3): 10¹⁰ ≈ 12 h, 10¹¹ ≈ 16 days, 10¹² ≈ 1.4 years on 2 cores.
 
-## Volunteers wanted:
-- Who is willing to make a simulation until 10^11 or higher ?
-- This investigation was made together with AI Sonnet 5.5. It would be desirable to carry out an independent review using a different AI model
+## Volunteers wanted
+- Who is willing to run a simulation up to 10¹¹ Bells or more?
+- This investigation was made together with the AI model Sonnet 5.5. An independent review using a different AI model would be desirable.
 
 
 ## Files
