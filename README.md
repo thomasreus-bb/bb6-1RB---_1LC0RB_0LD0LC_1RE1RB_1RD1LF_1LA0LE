@@ -155,17 +155,18 @@ The bound rests on the step formula, which is verified for k = 80 to 92 and for 
 Not included: the working buffers of the multiplication in `bellntt` (observed in the run to 10⁹: about 220 MB resident in total at 8·10⁸ Bells, with k then at 58 MB)
 and the table (small).
 
-## Runtime optimization: NTT
+## Runtime optimization: Block simulation and NTT
 **Why.** For one Bell, k' = 3·⌊k/2⌋ + c has to be applied to a number with up to hundreds of millions of bits. A simple implementation (`src/bellrun.c`) groups 40 Bells per pass over k,
 so every pass costs time proportional to the length of k and the total time grows like N². That is 12 s for 10⁷ Bells, 27 min for 10⁸ and about 2 days for 10⁹.
 
-**Block idea.** For a block of B Bells only the lowest B+2 bits of k decide which words S occur and which constants c are added.
-Write k = q·2^(B+2) + r. Then, after B Bells, the new k is
+**Block simulation (two levels).** Bell by Bell, only the lowest bits of k matter for the path: k' = 3·⌊k/2⌋ + c shifts k right by one bit, and the word S and the constant c depend on the lowest two bits.
+So for a block of B Bells only the lowest B+2 bits of k decide which words S occur and which constants c are added. Write k = q·2^(B+2) + r. Then, after B Bells, the new k is
 
-    k_B = 3^B · q · 4 + L        (L is computed from the low part r alone, the table and the 40-Bell passes)
+    k_B = 3^B · q · 4 + L        (L is computed from the low part r alone, with the table)
 
-So the long part q of k is not touched Bell by Bell, but multiplied once by 3^B. That is a multiplication of a number with up to N·0.585 bits by one with 1.585·B bits.
-With the schoolbook method this costs as much as before; with a fast multiplication it costs only about n·log n.
+- **Inner level (low part).** L is obtained by simulating the B Bells on the short number r only, in passes of 40 Bells at a time (`bellrun.c` does the same 40-Bell passes on the whole k, which is why it needs time ∝ N²).
+- **Outer level (long part).** The long part q of k is not touched Bell by Bell, but multiplied once by 3^B. That is a multiplication of a number with up to N·0.585 bits by one with 1.585·B bits.
+With the schoolbook method this costs as much as before; with a fast multiplication it costs only about n·log n. This is where the NTT comes in.
 
 **NTT (number theoretic transform).** Write a number as a polynomial in 2^w whose coefficients are its w-bit pieces. The product of two numbers is then the product of two
 polynomials (carries are added afterwards). A polynomial is determined by its values at enough points, and the product of two polynomials has values equal to the products of the values.
@@ -183,7 +184,7 @@ In `bellntt.c`:
 - the transform of 3^B is computed once and reused for all blocks;
 - q is cut into chunks of the transform length and the partial products are added where they overlap (overlap-add), so memory stays small.
 
-The block size B (second argument of `bellntt`) does not change the result, only the speed. It is a trade-off: a larger B means fewer big multiplications, but a longer low part to be simulated.
+The block size B (second argument of `bellntt`) does not change the result, only the speed. It is a trade-off: a larger B means fewer big multiplications, but a longer low part to be simulated (at N = 10⁹ the two parts take about the same time: 669 s and 713 s).
 
 | Bells N | good block size B |
 |---|---|
@@ -242,7 +243,7 @@ for the largest runs was not proven, only tested this way.
     cd table                                       # the programs read tab.txt and tab_names.txt from the current directory
     ../src/bellntt 10000000 40000                  # N Bells, block size B
 
-Output: a `KCHECK` fingerprint, then "no halt" or a HALT message (details in the section "Runtime optimization: NTT").
+Output: a `KCHECK` fingerprint, then "no halt" or a HALT message (details in the section "Runtime optimization: Block simulation and NTT").
 
 ## License
 MIT
