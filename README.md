@@ -18,13 +18,13 @@ where c is a small constant.
 
 The number of TM steps spent in one Bell is a quadratic polynomial in k. If t is the step count at the start of a Bell, then the next Bell starts at
 
-    t' = t + (3/8)·k² + β·k + γ
+    t' = t + (3/8)·k² + d  >  t + (3/8)·k²
 
-where β and γ are small constants that depend on S and on k mod 4 (over all words of the table 19/4 ≤ β ≤ 41/2 and 207/8 ≤ γ ≤ 527/2; they are not stored in the table files).
-Example: for S = `11` and k mod 4 = 0 we have β = 23/2 and γ = 55. Bell 5 (k = 92, t = 2,930) then takes 3/8·92² + 23/2·92 + 55 = 4,287 steps and Bell 6 starts at t' = 7,217 (see the list below).
+where d are small numbers that depend on S and on k (d = β·k + γ with β, γ depending on S and k mod 4; d is always positive).
+Example: for S = `11` and k mod 4 = 0, Bell 5 (k = 92, t = 2,930) takes 3/8·92² + d = 3,174 + 1,113 = 4,287 steps (d = 23/2·92 + 55) and Bell 6 starts at t' = 7,217 (see the list below).
 
 The formula was found by direct simulation (`one_bell` in `python/tmsim.py`) and is exact in the following sense: for every word S of the table that does not halt and every residue of k mod 4,
-the step count is exactly quadratic in k (checked for k = 80, 84, 88, 92 and the other residues, 11,436 cases, second difference always 12, i.e. leading coefficient 3/8), and with the fitted β and γ it reproduces the steps of all 23 Bells in the list below.
+the step count is exactly quadratic in k (checked for k = 80, 84, 88, 92 and the other residues, 11,436 cases, second difference always 12, i.e. leading coefficient 3/8), and with the fitted d it reproduces the steps of all 23 Bells in the list below.
 For larger k it is an extrapolation of this pattern, not a proof.
 
 Why 3/8? A plausible reading, not derived from the rules of the machine: during a Bell the head sweeps back and forth about k/2 times, and in the j-th sweep the part to the right of the head has grown by about 3 cells per consumed pair of ones, so a sweep costs about 3j steps; the sum Σ 3j for j < k/2 is 3k²/8.
@@ -137,7 +137,7 @@ The rounded factor 0.585 is not accurate enough for large N (at N = 10⁹ it is 
 So k needs roughly N/13.7 bytes.
 
 **Lower bound for the number of TM steps.** The table below also gives a lower bound for the TM steps t. It follows from two facts:
-1. A Bell with k ones takes at least 3/8·k² steps (previous formula; β·k + γ is positive).
+1. A Bell with k ones takes at least 3/8·k² steps (d > 0 in the formula above).
 2. Every constant c in the table is at least 5, so k' = 3·⌊k/2⌋ + c ≥ 1.5·k, and therefore k_n ≥ 1.5^(n−23) · k₂₃ for n ≥ 23, with k₂₃ = 158,354.
 
 Hence t_N ≥ t₂₃ + 3/8 · Σ_{n=23}^{N−1} k_n² ≥ 3/8 · k₂₃² · Σ 2.25^j ≥ 0.3 · k₂₃² · (2.25^(N−23) − 1) + t₂₃ ≈ 7.5·10⁹ · 2.25^(N−23) = 10^(0.35218·N + 1.78),
