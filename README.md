@@ -207,8 +207,12 @@ Reference values:
 | 10⁷ | `10592086495055389818 5849632 10001` |
 | 10⁹ | `825729492582408624 584962508 10001` (`bellntt` only, not cross-checked with `bellrun`) |
 
-`bellntt` gives the same fingerprint as `bellrun` for 10⁶ and 10⁷ Bells with several values of B. That the coefficients stay below the product of the two primes
-for the largest runs was not proven, only tested this way.
+`bellntt` gives the same fingerprint as `bellrun` for 10⁶ and 10⁷ Bells with several values of B.
+
+The CRT reconstruction is exact for every run the program accepts: the pieces of both factors have 32 bits, so each coefficient of the product is a sum of at most min(c, l) products
+below 2⁶⁴, where c is the chunk length and l the length of 3^B in pieces. The transform length is limited to 2²⁴ (the program stops otherwise), so c, l ≤ 2²⁴ and every coefficient is below 2²⁴·2⁶⁴ = 2⁸⁸,
+far below p₁·p₂ ≈ 2¹²⁶. This argument assumes that the two numbers are primes with 2²⁴ | p − 1 (checked) and that the transform and the Montgomery arithmetic are implemented correctly
+(supported by the identical fingerprints, but not proved).
 
 ## Status (15 Oct 2026)
 - Simulated up to 10⁹ Bells with no HALT (`src/bellntt.c`, 23 min on 2 cores).
