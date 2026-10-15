@@ -16,9 +16,11 @@ The next Bell is reached by
 
 where c is a small constant. 
 
-The first 23 Bells (`python/bell-structure.py 23`). `steps` = number of TM steps up to the start of the Bell, `k` and `S` as above (S written out in full), `c` = the constant of the transition to the next Bell, i.e. k<sub>n+1</sub> = 3·⌊k<sub>n</sub>/2⌋ + c<sub>n</sub>:
+(The step count t is increased by t' = t + ???)
 
-| n | steps (TM) | k | k mod 4 | S | c |
+The first 23 Bells (`python/bell-structure.py 23`). `t` = number of TM steps up to the start of the Bell, `k` and `S` as above (S written out in full), `c` = the constant of the transition to the next Bell, i.e. k<sub>n+1</sub> = 3·⌊k<sub>n</sub>/2⌋ + c<sub>n</sub>:
+
+| n | t (steps) | k | k mod 4 | S | c |
 |---:|---:|---:|---:|---|---:|
 | 1 | 8 | 2 | 2 | `11` | 11 |
 | 2 | 105 | 14 | 2 | `11` | 11 |
@@ -119,7 +121,8 @@ In order to simulate until HALT, we expect that we need to go until 10^12 Bells 
 k grows by a factor of about 3/2 per Bell. After N Bells its bit length is about N·log₂(3/2) = 0.5849625·N plus a small constant
 (about 4 to 7 bits in the runs so far: B23 has k = 158,354, i.e. 18 bits; N = 10⁹ gives 584,962,508 bits).
 The rounded factor 0.585 is not accurate enough for large N (at N = 10⁹ it is off by about 37,000 bits).
-So k needs roughly N/13.7 bytes:
+So k needs roughly N/13.7 bytes.
+The table below also gives an lower boud estimation for the steps t of the TM (... Herleitung, Formel)
 
 | Bells N | k | memory for k |
 |---|---|---|
