@@ -47,7 +47,7 @@ The first 23 Bells (`python/bell-structure.py 23`). `steps` = number of TM steps
 
 
 Macro-Simulation: 
-With above formulas, the sequence of bells can be computed as ... (S,k) (S',k'),(S'',k'')...,
+By iteration of above formulas, the sequence of bells can be computed as ... (S,k) (S',k'),(S'',k'')...,
 instead of simulation on the binary tape. It is possible, to compute in advance a table, where for each S the function (S', c) = f(S, bit 1 of k) is listed.
 
 For this investigation we use a finite table (2880 words S, two entries each; an entry can also be HALT),
