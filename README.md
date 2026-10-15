@@ -231,7 +231,6 @@ for the largest runs was not proven, only tested this way.
 | `src/bellntt.c` | fast simulation: blocks of Bells, own NTT multiplication, OpenMP, no GMP |
 | `src/bellrun.c`, `src/bellrun.py` | reference simulation (blocks of 40 Bells) |
 | `src/bellfast.py` | Python prototype of the block method |
-| `tools/` | analysis helper scripts from earlier work, not documented |
 
 ## Usage
 
