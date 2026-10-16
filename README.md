@@ -1,13 +1,16 @@
 # bb6: does this 6-state Turing machine halt on the empty tape?
 
+Author: Thomas Reus, with the AI model Claude  
+Status: 16 Oct 2026
+
     1RB---_1LC0RB_0LD0LC_1RE1RB_1RD1LF_1LA0LE
 
 Open question: does the machine ever halt? This repository holds the programs and data of an ongoing investigation.
 
-> **Remark (16 Oct 2026): a mirror-image sister machine.** The machine `1RB0LA_0RC0RB_1LD1LA_1LC1RE_1RF0RD_1LC---` (called TM2 in our notes; this machine is TM1) also has a Bell structure, and its tape looks like a mirror image of this one: here the shrinking block of ones lies on the left and the growing `(01)^m` part on the right; in TM2 it is the other way round.
-> In a quick direct simulation (2·10⁷ steps each) the block lengths at the start of the Bells grow almost in parallel, by a factor of about 1.56 per Bell in both machines (TM1: 15, 27, 45, 72, 112, 171, …; TM2: 16, 29, 49, 79, 124, 191, …; measured with our own detector at one fixed turning point of the head, so these numbers are not the k of the table below).
-> The tables of the two machines also correspond: S<sub>TM1</sub> = `11` + (P<sub>TM2</sub> read backwards) and k = 2n (for example `11` ↔ empty word, `111111` ↔ `1111`, `11101111` ↔ `111101`); of 91,130 comparable entries 83,324 match directly, the others differ only in how the cycle boundary is encoded. The Markov estimates agree (halt rate 8.87·10⁻¹³ per Bell / cycle).
-> This is an observation only, not a proof: the two machines are not exact mirror images of each other, and they start differently, so their orbits are not the same. A joint analysis may follow later.
+> **Remark (16 Oct 2026): a family of seven machines.** This machine (TM1) belongs to a family of seven vampire-like BB(6) holdouts with the same Bell dynamics (a Bell is called a cycle in some other notes), see the family repository [bb6-1RB0LA_0RC0RB_1LD1LA_1LC1RE_1RF0RD_1LC---](https://github.com/thomasreus-bb/bb6-1RB0LA_0RC0RB_1LD1LA_1LC1RE_1RF0RD_1LC---).
+> In particular, TM1 is the mirror image of `1RB0LA_0RC0RB_1LD1LA_1LC1RE_1RF0RD_1LC---` (TM2) with one transition changed (TM2's F reading 0: `1LA` instead of `1LC`) and started in state F (checked on the first 5,000 steps).
+> The tables correspond by S<sub>TM1</sub> = `11` + (P<sub>TM2</sub> read backwards) and n = ⌊k/2⌋; of 91,130 comparable entries 83,324 match directly, the others differ only in how the Bell boundary is encoded. The Markov estimates agree (8.87·10⁻¹³ per Bell).
+> The machines start differently, so their orbits are not the same. These are observations from simulations and tables, not proofs.
 
 ## Idea in brief
 After 8 initial steps the machine behaves like a "Bell" machine.
