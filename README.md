@@ -1,6 +1,6 @@
 # bb6: does this 6-state Turing machine halt on the empty tape?
 
-Author: Thomas Reus, with the AI model Claude  
+Author: Thomas Reus, with the AI model Claude Sonnet 5.5  
 Status: 16 Oct 2026
 
     1RB---_1LC0RB_0LD0LC_1RE1RB_1RD1LF_1LA0LE
