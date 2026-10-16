@@ -4,6 +4,10 @@
 
 Open question: does the machine ever halt? This repository holds the programs and data of an ongoing investigation.
 
+> **Remark (16 Oct 2026): a mirror-image sister machine.** The machine `1RB0LA_0RC0RB_1LD1LA_1LC1RE_1RF0RD_1LC---` (called TM2 in our notes; this machine is TM1) also has a Bell structure, and its tape looks like a mirror image of this one: here the shrinking block of ones lies on the left and the growing `(01)^m` part on the right; in TM2 it is the other way round.
+> In a quick direct simulation (2·10⁷ steps each) the block lengths at the start of the Bells grow almost in parallel, by a factor of about 1.56 per Bell in both machines (TM1: 15, 27, 45, 72, 112, 171, …; TM2: 16, 29, 49, 79, 124, 191, …; measured with our own detector at one fixed turning point of the head, so these numbers are not the k of the table below).
+> This is an observation only: the two machines are not exact mirror images of each other, and whether their Bell dynamics are equivalent is open. A joint analysis may follow later.
+
 ## Idea in brief
 After 8 initial steps the machine behaves like a "Bell" machine.
 The Bells can be separated and identified by a certain tape configuration
