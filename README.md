@@ -128,6 +128,40 @@ The times for N > 10⁹ assume that the run time grows like N^1.5 and are accura
 (even whether a halt ever happens). Also note that the model says only that the HALT entries are rare, not where in the orbit they will be hit.
 The model agrees with the 10⁹ Bells simulated so far, but at probability 0.089 % that run could not have shown a halt anyway.
 
+## Preliminary idea: the shortest halting path (16 Oct 2026, to be checked)
+Seen as a graph, the table has the nodes (S, bit 1 of k) and two possible successors per node (the next bit of k is 0 or 1). A breadth-first search from the state of Bell 1 (S = `11`, bit 1 of k = 1) gives:
+
+- The shortest path to a HALT entry has **42 transitions**: after 42 Bells the machine is in a Bell with S = `111111` or `11101111` and bit 1 of k = 1, and halts during that Bell.
+- The first of these transitions, (`11`, 1) → `11`, only returns to S = `11`. The essential part is the remaining **41 transitions**, which start at any Bell with S = `11` and bit 1 of k = 0 (41 is also the shortest distance from that node to a HALT entry).
+- Exactly **5** bit sequences do this. With b<sub>n</sub> = bit 1 of k<sub>n</sub> = ⌊k<sub>n</sub>/2⌋ mod 2, each is a word of 42 bits (b<sub>n</sub>, …, b<sub>n+41</sub>), where b<sub>n+41</sub> is the bit of the Bell that halts. Together with the leading bit 1 of Bell n−1 they form the 42-transition path from above.
+
+| i | W<sub>i</sub> = (b<sub>n</sub> … b<sub>n+41</sub>) | halts with S | y<sub>i</sub> = ⌊k<sub>n</sub>/2⌋ mod 2⁴² |
+|---:|---|---|---:|
+| 1 | `010101010101010101010101010101011101011001` | `111111` | 3,898,971,311,302 |
+| 2 | `010101010101010101010101010101010110010101` | `11101111` | 1,446,544,985,286 |
+| 3 | `010101010101010101010101010101011101110101` | `11101111` | 256,839,044,294 |
+| 4 | `010101010101010101010101010101010110010111` | `111111` | 347,033,357,510 |
+| 5 | `010101010101010101010101010101011101110111` | `111111` | 3,555,373,927,622 |
+
+All five words start with the same 32 bits `0101…01`. Along these bits S grows like a binary counter. For W<sub>2</sub>, for example, S runs through
+`11 111 110001 11101 1100011 111011 110000001 11100001 110001001 11101001 110001101 11101101 1100000011 111000011 1100010011 111010011 1100011011 111011011 110000000001 11100000001 110001000001 11101000001 110001100001 11101100001 110000001001 11100001001 110001001001 11101001001 110001101001 11101101001 110000001101 11100001101 110001001101 11101001101 110001101101 111101101 110000011 11100011 110001011 11101011 110001111 11101111`.
+
+Because k' = 3·⌊k/2⌋ + c uses up one bit of k per Bell, the 42 bits b<sub>n</sub> … b<sub>n+41</sub> depend only on S<sub>n</sub> and on ⌊k<sub>n</sub>/2⌋ mod 2⁴². So, with S<sub>n</sub> = `11`, the machine follows W<sub>i</sub> and halts if and only if ⌊k<sub>n</sub>/2⌋ ≡ y<sub>i</sub> (mod 2⁴²).
+The y<sub>i</sub> were found by lifting the residue of k bit by bit along the paths. They were checked by iterating k' = 3·⌊k/2⌋ + c with `table/tab.txt` from k = 2·(y<sub>i</sub> + 2⁴²·q) and k = 2·(y<sub>i</sub> + 2⁴²·q) + 1 (halt after exactly 41 transitions); changing the top bit (y<sub>i</sub> + 2⁴¹) gives no halt.
+The words and paths were also found in an independent recomputation of the table by direct simulation (2997 words S, all four residues of k mod 4, each entry checked at two sizes of k).
+
+**Mathematical question.** Let k<sub>1</sub> = 2, S<sub>1</sub> = `11` (Bell 1) and iterate
+
+    k_{n+1} = 3·⌊k_n/2⌋ + c_n ,     (S_{n+1}, c_n) = f(S_n, b_n),     b_n = ⌊k_n/2⌋ mod 2.
+
+Is there an n with S<sub>n</sub> = `11` and ⌊k<sub>n</sub>/2⌋ mod 2⁴² ∈ {y<sub>1</sub>, …, y<sub>5</sub>}, i.e. with (b<sub>n</sub>, …, b<sub>n+41</sub>) = W<sub>i</sub> for some i? If so, what is the smallest such n? (The machine would then halt in Bell n + 41.)
+
+Notes:
+- This is a sufficient condition only. The table has more HALT entries and longer paths to them, so the machine can also halt in other ways. The full question is: what is the first n at which (S<sub>n</sub>, b<sub>n</sub>) is a HALT entry?
+- Heuristic (fair coin, as in the Markov estimate): S = `11` occurs in about 34.6 % of the Bells, and from there one of the five words follows with probability 5/2⁴². That gives a rate of about 3.9·10⁻¹³ per Bell for these five paths, a bit less than half of the total halt rate 8.87·10⁻¹³.
+- The real orbit so far: up to Bell 300,000 the longest agreement with one of the five words, starting at a Bell with S = `11`, is 15 of 42 bits (Bell 27,001).
+- The same kind of question has been posed for the machine 1RB0RE_1LC0RA_1LA1LD_1LC1LF_0LC0LB_1LE--- (a shortest halting path of length 108 and a residue class mod 3¹⁰⁸; see the [BusyBeaverWiki](https://wiki.bbchallenge.org/wiki/1RB---_0RC0RE_1RD1RF_1LE0LB_1RC0LD_1RC1RA)).
+
 ## Memory demand
 To simulate until HALT we expect to need 10¹² Bells or more, which requires a lot of memory to store k:
 k grows by a factor of about 3/2 per Bell. After N Bells its bit length is about N·log₂(3/2) = 0.5849625·N plus a small constant
