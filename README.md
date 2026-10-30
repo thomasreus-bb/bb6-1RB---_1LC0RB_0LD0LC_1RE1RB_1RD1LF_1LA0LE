@@ -1,11 +1,13 @@
 # bb6: does this 6-state Turing machine halt on the empty tape?
 
 Author: Thomas Reus, with the AI model Claude Sonnet 5.5  
-Status: 16 Oct 2026
+Status: 30 Oct 2026: **HALT found** (orbit O1 of the family repository, not yet independently verified)
 
     1RB---_1LC0RB_0LD0LC_1RE1RB_1RD1LF_1LA0LE
 
 Open question: does the machine ever halt? This repository holds the programs and data of an ongoing investigation.
+
+> **HALT found (30 Oct 2026).** Ahmer Raza simulated orbit O1 of the family repository, which is this machine, with `belldco` from the [family repository](https://github.com/thomasreus-bb/bb6-vampire-family-1RB0LA_0RC0RB_1LD1LA_1LC1RE_1RF0RD_1LC---). It reaches a halting word: **HALT at Bell 747,242,483,684** (Bell numbering of TM2 used there), S_pascal = `1101111`. The run took 24.5 hours on 8 cores of an AMD EPYC 9655 with 256 GB RAM. An independent verification and the step count are still open. Details are in the family repository.
 
 > **Remark (16 Oct 2026): a family of seven machines.** This machine (TM1) belongs to a family of seven vampire-like BB(6) holdouts with the same Bell dynamics (a Bell is called a cycle in some other notes), see the family repository [bb6-vampire-family-1RB0LA_0RC0RB_1LD1LA_1LC1RE_1RF0RD_1LC---](https://github.com/thomasreus-bb/bb6-vampire-family-1RB0LA_0RC0RB_1LD1LA_1LC1RE_1RF0RD_1LC---).
 > In particular, TM1 is the mirror image of `1RB0LA_0RC0RB_1LD1LA_1LC1RE_1RF0RD_1LC---` (TM2) with one transition changed (TM2's F reading 0: `1LA` instead of `1LC`) and started in state F (checked on the first 5,000 steps).
